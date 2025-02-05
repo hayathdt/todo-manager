@@ -1,11 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
 import Task from "./models/task.js";
-
-const app = express();
+import taskRoutes from "./routes/taskRoutes.js";
 
 import dotenv from "dotenv";
 dotenv.config();
+
+const app = express();
+app.use(express.json());
+app.use("/", taskRoutes);
+
+export default app;
 
 mongoose
   .connect(process.env.MONGODB_URI)
