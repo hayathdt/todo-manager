@@ -27,3 +27,15 @@ router.get("/tasks", async (req, res) => {
 export default router;
 
 // route pour lire une tâche spécifique
+router.get("/tasks/:id", async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// route pour Mettre à jour une tâche
+
+// Supprimer une tâche
