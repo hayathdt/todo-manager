@@ -1,12 +1,22 @@
 {
   "name": "todo-manager",
   "version": "1.0.0",
-  "description": "",
+  "description": "Application de gestion de tâches",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "todo",
+    "node.js",
+    "list",
+    "todo-manager"
+  ],
+  "author": "Hayat Haddouti",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
 }
