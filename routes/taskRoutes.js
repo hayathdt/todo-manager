@@ -36,7 +36,6 @@ router.get("/tasks/:id", async (req, res) => {
   }
 });
 
-/*
 // route pour Mettre à jour une tâche
 router.put("/tasks/:id", async (req, res) => {
   try {
@@ -48,13 +47,12 @@ router.put("/tasks/:id", async (req, res) => {
   }
 });
 
-*/
-
 // Supprimer une tâche
 router.delete("/tasks/:id", async (req, res) => {
   try {
     const taskId = req.params.id;
-    const task = await Task.findByIdAndDelete(taskId);
+    const update = req.body;
+    const task = await Task.findByIdAndDelete(taskId, update);
     res.status(201).json({ message: "tache supprimée" });
   } catch (error) {
     res.status(400).json({ error: error.message });
