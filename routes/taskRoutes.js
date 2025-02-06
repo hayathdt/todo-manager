@@ -40,7 +40,8 @@ router.get("/tasks/:id", async (req, res) => {
 router.put("/tasks/:id", async (req, res) => {
   try {
     const taskId = req.params.id;
-    const task = await Task.findByIdAndUpdate(taskId);
+    const task = await Task.findByIdAndUpdate(taskId, req.body, { new: true });
+    if (!task) return res.status(404).json({ error: "Tâche non trouvée" });
     res.status(201).json(task);
   } catch (error) {
     res.status(400).json({ error: error.message });
