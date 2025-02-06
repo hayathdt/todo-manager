@@ -64,7 +64,7 @@ L'application sera accessible à l'adresse `http://localhost:3000`.
 - **Méthode** : `GET`
 - **URL** : `/tasks`
 - **Corps de la requête + réponse** :
-  (screenshots/get.png)
+  ![Réponse GET par ID](screenshots/get.png)
 
 ## Lire une tâche spécifique :
 
@@ -73,7 +73,7 @@ L'application sera accessible à l'adresse `http://localhost:3000`.
 - **Paramètres de requête** :
 - `id` : ID de la tâche à récupérer (facultatif)
   **Corps de la requête + réponse** :
-  (screenshots/getbyid.png)
+  ![Réponse GET par ID](screenshots/getbyid.png)
 
 ## Mettre à jour une tâche :
 
@@ -82,7 +82,7 @@ L'application sera accessible à l'adresse `http://localhost:3000`.
 - **Paramètres de requête** :
 - `id` : ID de la tâche à mettre à jour
 - **Corps de la requête + réponsé** :
-  (screenshots/put.png)
+  ![Réponse GET par ID](screenshots/put.png)
 
 ## Supprimer une tâche :
 
@@ -90,8 +90,8 @@ L'application sera accessible à l'adresse `http://localhost:3000`.
 **URL** : `/tasks/:id`
 **Paramètres de requête** :
 `id` : ID de la tâche à supprimer
-**Corps de la requête + réponse** :
-(screenshots/delete.png)
+**Corps de la requête** :
+![Réponse GET par ID](screenshots/delete.png)
 
 ## Tests
 
