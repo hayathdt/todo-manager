@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestionnaire de Tâches</title>
+    <link rel="stylesheet" href="todo.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Gestionnaire de Tâches</h1>
+      <form id="taskForm">
+        <input
+          type="text"
+          id="title"
+          placeholder="Titre de la tâche"
+          required
+        />
+        <textarea
+          id="description"
+          placeholder="Description de la tâche"
+          required
+        ></textarea>
+        <div class="checkbox-container">
+          <label for="completed">Terminée:</label>
+          <input type="checkbox" id="completed" />
+        </div>
+        <div class="button-group">
+          <button type="submit" id="createBtn">Créer</button>
+          <button type="button" id="updateBtn">Modifier</button>
+          <button type="button" id="deleteBtn">Supprimer</button>
+        </div>
+      </form>
+      <div id="tasksList"></div>
+    </div>
+    <script src="todo.js"></script>
+  </body>
+</html>

@@ -8,16 +8,16 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(express.static("public"));
 app.use("/", taskRoutes);
-
-export default app;
 
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connexion à MongoDB réussie"))
   .catch((err) => console.log("Erreur de connexion à MongoDB", err));
 
-app.post("/tasks", async (req, res) => {
+/*
+  app.post("/tasks", async (req, res) => {
   try {
     const task = new Task({
       title: req.body.title,
@@ -39,6 +39,8 @@ app.get("/tasks", async (req, res) => {
   }
 });
 
+*/
+
 const PORT = 3000;
 
 app.get("/", (req, res) => {
@@ -48,3 +50,5 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le: ${PORT}`);
 });
+
+export default app;
