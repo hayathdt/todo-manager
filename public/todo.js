@@ -149,7 +149,6 @@ async function createTask(event) {
 }
 
 // filtrage des tâches par catégorie
-
 document.getElementById("categoryFilter").addEventListener("change", (e) => {
   const selectedCategory = e.target.value;
   if (selectedCategory === "all") {
@@ -162,9 +161,21 @@ document.getElementById("categoryFilter").addEventListener("change", (e) => {
 // fonction pour récupérer les tâches par catégorie
 async function fetchTasksByCategory(category) {
   try {
-    const response = await apiCall(`/tasks?category=${category}`);
+    const response = await apiCall(
+      `/tasks?category=${category}&page=${state.currentPage}&limit=4`
+    );
     const data = await response.json();
-    updateTasksList(data.tasks);
+
+    state.totalPages = data.totalPages;
+    state.currentPage = data.currentPage;
+
+    elements.tasksList.innerHTML = "";
+    data.tasks.forEach((task) => {
+      const taskElement = createTaskElement(task);
+      elements.tasksList.appendChild(taskElement);
+    });
+
+    updatePaginationControls();
   } catch (error) {
     displayError("Erreur lors du filtrage des tâches");
   }
