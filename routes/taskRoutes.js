@@ -59,3 +59,13 @@ router.delete("/tasks/:id", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+// Suppression de toutes les tâches
+router.delete("/tasks", async (req, res) => {
+  try {
+    await Task.deleteMany({});
+    res.status(200).json({ message: "Toutes les tâches ont été supprimées" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
