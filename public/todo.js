@@ -5,6 +5,7 @@ const elements = {
   confirmMessage: document.getElementById("confirmMessage"),
   taskForm: document.getElementById("taskForm"),
   tasksList: document.getElementById("tasksList"),
+  errorDisplay: document.getElementById("errorDisplay"),
   buttons: {
     close: document.querySelector(".close"),
     confirm: document.getElementById("confirmBtn"),
@@ -12,6 +13,9 @@ const elements = {
     update: document.getElementById("updateBtn"),
     delete: document.getElementById("deleteBtn"),
     deleteAll: document.getElementById("deleteAllBtn"),
+    prevPageBtn: document.getElementById("prevPageBtn"),
+    nextPageBtn: document.getElementById("nextPageBtn"),
+    pageNumber: document.getElementById("pageNumber"),
   },
 };
 
@@ -19,26 +23,73 @@ const elements = {
 let state = {
   currentTaskId: null,
   confirmAction: null,
+  currentPage: 1,
+  totalPages: 1,
 };
 
-// Initialisation des écouteurs d'événements
-function initializeEventListeners() {
-  elements.taskForm.addEventListener("submit", createTask);
-  elements.buttons.update.addEventListener("click", () =>
-    updateTask(state.currentTaskId)
-  );
-  elements.buttons.delete.addEventListener("click", () =>
-    deleteTask(state.currentTaskId)
-  );
-  elements.buttons.deleteAll.addEventListener("click", deleteAllTasks);
+// Gestion des erreurs
+function displayError(message) {
+  if (elements.errorDisplay) {
+    elements.errorDisplay.textContent = message;
+    elements.errorDisplay.style.display = "block";
+    setTimeout(() => {
+      elements.errorDisplay.style.display = "none";
+    }, 3000);
+  } else {
+    alert(message);
+  }
+}
 
-  // Événements de la modale
-  elements.buttons.close.onclick = closeModal;
-  elements.buttons.confirm.onclick = executeConfirmAction;
-  elements.buttons.cancel.onclick = closeConfirmModal;
-  window.onclick = handleOutsideClick;
+// Appels API
+async function apiCall(endpoint, method = "GET", data = null) {
+  try {
+    const options = {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : null,
+    };
 
-  document.addEventListener("DOMContentLoaded", loadTasks);
+    const response = await fetch(endpoint, options);
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP! statut: ${response.status}`);
+    }
+    return response;
+  } catch (error) {
+    console.error("Erreur API:", error);
+    displayError(
+      "Une erreur est survenue lors de la communication avec le serveur"
+    );
+    throw error;
+  }
+}
+
+// Gestion de la pagination
+async function fetchTasks(page = 1) {
+  try {
+    const response = await apiCall(`/tasks?page=${page}&limit=4`);
+    const data = await response.json();
+
+    state.totalPages = data.totalPages;
+    state.currentPage = data.currentPage;
+
+    elements.tasksList.innerHTML = "";
+    data.tasks.forEach((task) => {
+      const taskElement = createTaskElement(task);
+      elements.tasksList.appendChild(taskElement);
+    });
+
+    updatePaginationControls();
+  } catch (error) {
+    console.error("Erreur lors du chargement des tâches:", error);
+    displayError("Impossible de charger les tâches");
+  }
+}
+
+function updatePaginationControls() {
+  elements.buttons.pageNumber.textContent = state.currentPage;
+  elements.buttons.prevPageBtn.disabled = state.currentPage === 1;
+  elements.buttons.nextPageBtn.disabled =
+    state.currentPage === state.totalPages;
 }
 
 // Gestionnaires de la modale
@@ -69,26 +120,6 @@ function executeConfirmAction() {
   closeConfirmModal();
 }
 
-// Appels API
-async function apiCall(endpoint, method = "GET", data = null) {
-  try {
-    const options = {
-      method,
-      headers: data ? { "Content-Type": "application/json" } : {},
-      body: data ? JSON.stringify(data) : null,
-    };
-
-    const response = await fetch(endpoint, options);
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP! statut: ${response.status}`);
-    }
-    return response;
-  } catch (error) {
-    console.error("Erreur API:", error);
-    throw error;
-  }
-}
-
 // Opérations sur les tâches
 async function createTask(event) {
   event.preventDefault();
@@ -101,21 +132,15 @@ async function createTask(event) {
 
   try {
     await apiCall("/tasks", "POST", taskData);
-    loadTasks();
     elements.taskForm.reset();
+    fetchTasks(state.currentPage);
   } catch (error) {
-    console.error("Création de tâche échouée:", error);
+    displayError("Impossible de créer la tâche");
   }
 }
 
 async function loadTasks() {
-  try {
-    const response = await apiCall("/tasks");
-    const tasks = await response.json();
-    renderTasks(tasks);
-  } catch (error) {
-    console.error("Chargement des tâches échoué:", error);
-  }
+  await fetchTasks(state.currentPage);
 }
 
 async function updateTask(taskId) {
@@ -132,11 +157,11 @@ async function updateTask(taskId) {
 
       try {
         await apiCall(`/tasks/${taskId}`, "PUT", taskData);
-        loadTasks();
+        fetchTasks(state.currentPage);
         closeModal();
         state.currentTaskId = null;
       } catch (error) {
-        console.error("Mise à jour échouée:", error);
+        displayError("Impossible de mettre à jour la tâche");
       }
     }
   );
@@ -150,11 +175,11 @@ async function deleteTask(taskId) {
     async () => {
       try {
         await apiCall(`/tasks/${taskId}`, "DELETE");
-        loadTasks();
+        fetchTasks(state.currentPage);
         closeModal();
         state.currentTaskId = null;
       } catch (error) {
-        console.error("Suppression échouée:", error);
+        displayError("Impossible de supprimer la tâche");
       }
     }
   );
@@ -163,30 +188,22 @@ async function deleteTask(taskId) {
 async function deleteAllTasks() {
   try {
     await apiCall("/tasks", "DELETE");
-    loadTasks();
+    fetchTasks(1);
   } catch (error) {
-    console.error("Suppression totale échouée:", error);
+    displayError("Impossible de supprimer toutes les tâches");
   }
 }
 
 async function toggleTaskCompletion(taskId, isCompleted) {
   try {
     await apiCall(`/tasks/${taskId}`, "PUT", { completed: isCompleted });
+    fetchTasks(state.currentPage);
   } catch (error) {
-    console.error("Mise à jour du statut échouée:", error);
+    displayError("Impossible de mettre à jour le statut de la tâche");
   }
 }
 
-// Opérations sur l'interface utilisateur
-function renderTasks(tasks) {
-  elements.tasksList.innerHTML = "";
-
-  tasks.forEach((task) => {
-    const taskElement = createTaskElement(task);
-    elements.tasksList.appendChild(taskElement);
-  });
-}
-
+// Création des éléments de l'interface
 function createTaskElement(task) {
   const taskElement = document.createElement("div");
   taskElement.className = "task-item";
@@ -222,6 +239,39 @@ function selectTask(task) {
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("fr-FR");
+}
+
+// Initialisation des écouteurs d'événements
+function initializeEventListeners() {
+  elements.taskForm.addEventListener("submit", createTask);
+  elements.buttons.update.addEventListener("click", () =>
+    updateTask(state.currentTaskId)
+  );
+  elements.buttons.delete.addEventListener("click", () =>
+    deleteTask(state.currentTaskId)
+  );
+  elements.buttons.deleteAll.addEventListener("click", deleteAllTasks);
+
+  elements.buttons.prevPageBtn.addEventListener("click", () => {
+    if (state.currentPage > 1) {
+      state.currentPage--;
+      fetchTasks(state.currentPage);
+    }
+  });
+
+  elements.buttons.nextPageBtn.addEventListener("click", () => {
+    if (state.currentPage < state.totalPages) {
+      state.currentPage++;
+      fetchTasks(state.currentPage);
+    }
+  });
+
+  elements.buttons.close.addEventListener("click", closeModal);
+  elements.buttons.confirm.addEventListener("click", executeConfirmAction);
+  elements.buttons.cancel.addEventListener("click", closeConfirmModal);
+  window.addEventListener("click", handleOutsideClick);
+
+  document.addEventListener("DOMContentLoaded", loadTasks);
 }
 
 // Initialisation de l'application

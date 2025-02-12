@@ -1,9 +1,9 @@
 import express from "express";
-import Task from "../models/task.js"; // importation de mon modele pour le crud
+import Task from "../models/task.js"; // Importation du modèle
 
 const router = express.Router();
 
-// route pour envoyer les données de la nouvelle tache
+// 📌 Route pour ajouter une nouvelle tâche
 router.post("/tasks", async (req, res) => {
   try {
     const task = new Task(req.body);
@@ -14,53 +14,62 @@ router.post("/tasks", async (req, res) => {
   }
 });
 
-//route pour lire les tâches
+// 📌 Route pour récupérer les tâches avec pagination
 router.get("/tasks", async (req, res) => {
   try {
-    const tasks = await Task.find();
-    res.status(201).json(tasks);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+    const skip = (page - 1) * limit;
+
+    const totalTasks = await Task.countDocuments();
+    const tasks = await Task.find().skip(skip).limit(limit);
+
+    res.status(200).json({
+      tasks,
+      totalPages: Math.ceil(totalTasks / limit),
+      currentPage: page,
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
-export default router;
-
-// route pour lire une tâche spécifique
+// 📌 Route pour récupérer une tâche spécifique
 router.get("/tasks/:id", async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Tâche non trouvée" });
     res.status(200).json(task);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// route pour Mettre à jour une tâche
+// 📌 Route pour mettre à jour une tâche
 router.put("/tasks/:id", async (req, res) => {
   try {
-    const taskId = req.params.id;
-    const task = await Task.findByIdAndUpdate(taskId, req.body, { new: true });
+    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     if (!task) return res.status(404).json({ error: "Tâche non trouvée" });
-    res.status(201).json(task);
+    res.status(200).json(task);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Supprimer une tâche
+// 📌 Route pour supprimer une tâche
 router.delete("/tasks/:id", async (req, res) => {
   try {
-    const taskId = req.params.id;
-    const update = req.body;
-    const task = await Task.findByIdAndDelete(taskId, update);
-    res.status(201).json({ message: "tache supprimée" });
+    const task = await Task.findByIdAndDelete(req.params.id);
+    if (!task) return res.status(404).json({ error: "Tâche non trouvée" });
+    res.status(200).json({ message: "Tâche supprimée avec succès" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Suppression de toutes les tâches
+// 📌 Route pour supprimer toutes les tâches
 router.delete("/tasks", async (req, res) => {
   try {
     await Task.deleteMany({});
@@ -69,3 +78,5 @@ router.delete("/tasks", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+export default router;
