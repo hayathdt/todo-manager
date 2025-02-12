@@ -213,10 +213,12 @@ function createTaskElement(task) {
       task.completed ? "checked" : ""
     } class="task-checkbox">
     <h3>${task.title}</h3>
-    <p>${task.description}</p>
-    <p>Échéance: ${formatDate(task.dueDate)}</p>
-    <p>Statut: ${task.completed ? "Terminée" : "En cours"}</p>
-    <p>Créée le: ${formatDate(task.createdAt)}</p>
+    <div id="description-container"><p id="descriptiontask">${
+      task.description
+    }</p></div>
+    <p id="duedate">Avant le: ${formatDate(task.dueDate)}</p>
+    <p id="check">Statut: ${task.completed ? "Terminée" : "En cours"}</p>
+    <p id="createdate">Créée le: ${formatDate(task.createdAt)}</p>
   `;
 
   const checkbox = taskElement.querySelector(".task-checkbox");
