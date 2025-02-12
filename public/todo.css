@@ -96,7 +96,6 @@ button:active {
 #tasksList {
   list-style: none;
   padding: 0;
-  margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
@@ -210,14 +209,57 @@ button:active {
   font-size: 14px;
 }
 
-#deleteAllBtn {
+#deleteAllBtn,
+#cancelBtn,
+#deleteBtn {
   background-color: #e03c4c;
 }
 
-#deleteAllBtn:hover {
+#deleteAllBtn:hover,
+#cancelBtn:hover,
+#deleteBtn:hover {
   background-color: #c82333;
 }
 
 .pagination button:hover {
   background: #2a9c46;
+}
+
+/* categories */
+
+#taskCategory,
+#editCategory,
+#categoryFilter {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  background: var(--background-color);
+  cursor: pointer;
+  margin: 5px 0;
+}
+
+/* Section de filtrage */
+.filter-section {
+  margin: 20px 0;
+  width: 80%;
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+/* Style au survol des selects */
+#taskCategory:hover,
+#editCategory:hover,
+#categoryFilter:hover {
+  border-color: var(--primary-color);
+}
+
+/* Style du focus */
+#taskCategory:focus,
+#editCategory:focus,
+#categoryFilter:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
 }

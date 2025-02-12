@@ -18,6 +18,12 @@ const elements = {
     pageNumber: document.getElementById("pageNumber"),
   },
 };
+const categoryColors = {
+  shopping: "#FF6B6B",
+  travail: "#4ECDC4",
+  personnel: "#45B7D1",
+  administration: "#96CEB4",
+};
 
 // Gestion de l'état
 let state = {
@@ -128,14 +134,39 @@ async function createTask(event) {
     description: document.getElementById("description").value,
     dueDate: document.getElementById("dueDate").value,
     completed: false,
+    category: document.getElementById("taskCategory").value,
+    categoryColor:
+      categoryColors[document.getElementById("taskCategory").value],
   };
-
+  console.log("Sending task data:", taskData);
   try {
     await apiCall("/tasks", "POST", taskData);
     elements.taskForm.reset();
     fetchTasks(state.currentPage);
   } catch (error) {
     displayError("Impossible de créer la tâche");
+  }
+}
+
+// filtrage des tâches par catégorie
+
+document.getElementById("categoryFilter").addEventListener("change", (e) => {
+  const selectedCategory = e.target.value;
+  if (selectedCategory === "all") {
+    fetchTasks(state.currentPage);
+  } else {
+    fetchTasksByCategory(selectedCategory);
+  }
+});
+
+// fonction pour récupérer les tâches par catégorie
+async function fetchTasksByCategory(category) {
+  try {
+    const response = await apiCall(`/tasks?category=${category}`);
+    const data = await response.json();
+    updateTasksList(data.tasks);
+  } catch (error) {
+    displayError("Erreur lors du filtrage des tâches");
   }
 }
 
@@ -153,6 +184,9 @@ async function updateTask(taskId) {
         title: document.getElementById("editTitle").value,
         description: document.getElementById("editDescription").value,
         completed: document.getElementById("editCompleted").checked,
+        category: document.getElementById("editCategory").value,
+        categoryColor:
+          categoryColors[document.getElementById("editCategory").value],
       };
 
       try {
@@ -207,8 +241,12 @@ async function toggleTaskCompletion(taskId, isCompleted) {
 function createTaskElement(task) {
   const taskElement = document.createElement("div");
   taskElement.className = "task-item";
+  taskElement.style.borderLeft = `5px solid ${task.categoryColor}`;
 
   taskElement.innerHTML = `
+    <span class="category-badge" style="background-color: ${
+      task.categoryColor
+    }"></span>
     <input type="checkbox" ${
       task.completed ? "checked" : ""
     } class="task-checkbox">
@@ -236,6 +274,7 @@ function selectTask(task) {
   document.getElementById("editTitle").value = task.title;
   document.getElementById("editDescription").value = task.description;
   document.getElementById("editCompleted").checked = task.completed;
+  document.getElementById("editCategory").value = task.category;
   elements.modal.style.display = "block";
 }
 

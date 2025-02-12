@@ -1,3 +1,10 @@
+const categoryColors = {
+  shopping: "#FF6B6B",
+  travail: "#4ECDC4",
+  personnel: "#45B7D1",
+  administration: "#96CEB4",
+};
+
 import express from "express";
 import Task from "../models/task.js"; // Importation du modèle
 
@@ -6,10 +13,12 @@ const router = express.Router();
 // 📌 Route pour ajouter une nouvelle tâche
 router.post("/tasks", async (req, res) => {
   try {
+    console.log("Received task data:", req.body);
     const task = new Task(req.body);
     await task.save();
     res.status(201).json(task);
   } catch (error) {
+    console.log("Error creating task:", error);
     res.status(400).json({ error: error.message });
   }
 });
@@ -17,12 +26,12 @@ router.post("/tasks", async (req, res) => {
 // 📌 Route pour récupérer les tâches avec pagination
 router.get("/tasks", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
-    const skip = (page - 1) * limit;
+    const { category, page = 1, limit = 4 } = req.query;
+    const query = category && category !== "all" ? { category } : {};
 
-    const totalTasks = await Task.countDocuments();
-    const tasks = await Task.find().skip(skip).limit(limit);
+    const skip = (page - 1) * limit;
+    const totalTasks = await Task.countDocuments(query);
+    const tasks = await Task.find(query).skip(skip).limit(limit);
 
     res.status(200).json({
       tasks,
@@ -48,7 +57,12 @@ router.get("/tasks/:id", async (req, res) => {
 // 📌 Route pour mettre à jour une tâche
 router.put("/tasks/:id", async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+    const updates = {
+      ...req.body,
+      categoryColor: categoryColors[req.body.category], // Assure la cohérence des couleurs
+    };
+
+    const task = await Task.findByIdAndUpdate(req.params.id, updates, {
       new: true,
     });
     if (!task) return res.status(404).json({ error: "Tâche non trouvée" });

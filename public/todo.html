@@ -26,10 +26,29 @@
           required
         ></textarea>
         <input type="date" id="dueDate" required />
+
+        <!-- categories -->
+        <select id="taskCategory" required>
+          <option value="">Choisir une catégorie</option>
+          <option value="shopping">Shopping</option>
+          <option value="travail">Travail</option>
+          <option value="personnel">Personnel</option>
+          <option value="administration">Administration</option>
+        </select>
+
         <button type="submit" id="createBtn">Créer</button>
       </form>
 
       <button id="sortBtn" style="margin-bottom: 20px">Trier par date</button>
+      <div class="filter-section">
+        <select id="categoryFilter">
+          <option value="all">Toutes les catégories</option>
+          <option value="shopping">Shopping</option>
+          <option value="travail">Travail</option>
+          <option value="personnel">Personnel</option>
+          <option value="administration">Administration</option>
+        </select>
+      </div>
       <ul id="tasksList"></ul>
 
       <div class="pagination">
@@ -61,6 +80,14 @@
             placeholder="Description de la tâche"
             required
           ></textarea>
+
+          <select id="editCategory" required>
+            <option value="shopping">Shopping</option>
+            <option value="travail">Travail</option>
+            <option value="personnel">Personnel</option>
+            <option value="administration">Administration</option>
+          </select>
+
           <div class="checkbox-container">
             <label for="editCompleted">Terminée:</label>
             <input type="checkbox" id="editCompleted" />

@@ -23,6 +23,15 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  category: {
+    type: String,
+    enum: ["shopping", "travail", "personnel", "administration"],
+    required: true,
+  },
+  categoryColor: {
+    type: String,
+    default: "#007aff",
+  },
 });
 
 const Task = mongoose.model("Task", taskSchema);
